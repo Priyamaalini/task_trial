@@ -1,19 +1,139 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-class User(models.Model):
-    username = models.CharField(max_length=255)
-    password = models.CharField(max_length=255)
-    email = models.EmailField(max_length=255)
 
-class Survey(models.Model):
-    user= models.ForeignKey(User, on_delete=models.CASCADE , related_name='user_survey')
-    title = models.CharField(max_length=255)  # Add title field
-    question = models.ForeignKey(User, on_delete=models.CASCADE , related_name='question_survey' , default='')
-    option = models.CharField(max_length=255, default='')
-    score = models.IntegerField(default=0) 
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.username
+
+
+class Marks(models.Model):
+    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE, null=True, blank=True)
     marks = models.IntegerField(default=0)
 
+    def __str__(self):
+        return f"{self.user.user.username}'s Marks"
 
 
-     # Add score field
+class Count(models.Model):
+    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
+    count = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.user.user.username}'s Count"
+
+
+class Survey(models.Model):
+    title = models.CharField(max_length=255)
+    score = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Question(models.Model):
+    survey = models.ForeignKey(Survey, related_name='questions', on_delete=models.CASCADE)
+    question = models.CharField(max_length=255)
+
+
+class Option(models.Model):
+    question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
+    option = models.CharField(max_length=255)
+    is_correct = models.BooleanField(default=False)
+
+
+
+
+
+
+
+
+
+
+
+
+# from django.db import models
+# # from django.contrib.auth.models import User
+# from django.db.models import JSONField
+
+# class UserProfile(models.Model):
+#     username = models.CharField(max_length=255)
+#     password = models.CharField(max_length=255)
+#     email = models.EmailField(max_length=255)
+
+#     def __str__(self):
+#         return self.username
+
+ 
+# class SurveyData(models.Model):
+#     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True, blank=True)
+#     title = models.CharField(max_length=255)
+#     questions = JSONField(default=list, blank=True)
+#     # option = models.CharField(max_length=255)
+#     # correctOption = models.CharField(max_length=255)
+#     score = models.IntegerField(default=0)
+
+# class Question(models.Model):
+#     option = models.CharField(max_length=255)
+#     question = models.CharField(max_length=500)
+#     correctOption = models.CharField(max_length=255)
+
+#     def __str__(self):
+#         return self.question    
+
+# class Marks(models.Model):
+#     user = models.OneToOneField(UserProfile, on_delete=models.CASCADE, null=True, blank=True, default=None)
+#     marks = models.IntegerField(default=0)
+
+# class Count(models.Model):
+#     user = models.OneToOneField(UserProfile, on_delete=models.CASCADE, default=None)
+#     count = models.IntegerField(default=0)
+
+    
+
+# #      # Add score field
+
+# # from django.db import models
+
+# # class UserProfile(models.Model):
+# #     username = models.CharField(max_length=255)
+# #     password = models.CharField(max_length=255)
+# #     email = models.EmailField(max_length=255)
+
+# #     def __str__(self):
+# #         return self.username
+
+
+# # class SurveyData(models.Model):
+# #     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True, blank=True)
+# #     title = models.CharField(max_length=255)
+# #     score = models.IntegerField(default=0)
+
+# #     def __str__(self):
+# #         return self.title
+
+
+# # class Question(models.Model):
+# #     survey = models.ForeignKey(SurveyData, on_delete=models.CASCADE, related_name='questions')
+# #     option = models.CharField(max_length=255)
+# #     question = models.CharField(max_length=500)
+# #     correctOption = models.CharField(max_length=255)
+
+# #     def __str__(self):
+# #         return self.question
+    
+
+# # class Marks(models.Model):
+# #     user = models.OneToOneField(UserProfile, on_delete=models.CASCADE, null=True, blank=True, default=None)
+# #     marks = models.IntegerField(default=0)
+
+# #     def __str__(self):
+# #         return f"{self.user.username}'s Marks"
+
+
+# # class Count(models.Model):
+# #     user = models.OneToOneField(UserProfile, on_delete=models.CASCADE, default=None)
+# #     count = models.IntegerField(default=0)
+
+# #     def __str__(self):
+# #         return f"{self.user.username}'s Count"

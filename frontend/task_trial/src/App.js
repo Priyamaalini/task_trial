@@ -6,8 +6,9 @@ import SurveyCard from './components/user/UserSurvey';
 import AdminDashboard from './components/admin/AdminDashboard';
 import CreateSurvey from './components/admin/AdminSurvey';
 import DisplaySurvey from './components/admin/DisplaySurvey';
+import Result from './components/user/Result';
 
-
+import './App.css' ; // Import the CSS file
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
       <Route path="/new-survey" element={<CreateSurvey />} />
       <Route path="/display" element={<DisplaySurvey />} />
       <Route path="/admin-dashboard" element={<AdminDashboard/>} />
+      <Route path='/result' element={<Result/>} />
     </Routes>
   </Router>
   );

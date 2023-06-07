@@ -25,7 +25,7 @@ const UserRegistrationForm = () => {
     console.log('Registration submitted');
     // Perform registration logic using username, password, and email
     axios
-      .post('http://127.0.0.1:8000/api/users/', { username, password, email })
+      .post('http://127.0.0.1:8000/api/userprofiles/', { username, password, email })
       .then((response) => {
         console.log('Registration successful:', response.data);
           // Set the registered username and password in session storage
@@ -37,7 +37,10 @@ const UserRegistrationForm = () => {
       .catch((error) => {
         console.error('Error registering:', error);
       });
-  };
+  //     .finally(()=>{
+  //       navigate('/');
+  //     })
+   };
 
   return (
     <div className="container">
