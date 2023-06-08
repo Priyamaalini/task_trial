@@ -23,6 +23,7 @@ const CreateSurvey = () => {
 
   const handleCorrectOptionChange = (e, questionIndex) => {
     const updatedQuestions = [...questions];
+    
     updatedQuestions[questionIndex].correctOption = e.target.value;
     setQuestions(updatedQuestions);
   };

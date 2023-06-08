@@ -1,34 +1,38 @@
 from django.db import models
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    # user = models.OneToOneField(User, on_delete=models.CASCADE)
+    username = models.CharField(max_length=255, default=None)
+    password = models.CharField(max_length=255, default=None)
+    email = models.EmailField(max_length=255, default=None)
 
     def __str__(self):
-        return self.user.username
-
-
-class Marks(models.Model):
-    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE, null=True, blank=True)
-    marks = models.IntegerField(default=0)
-
-    def __str__(self):
-        return f"{self.user.user.username}'s Marks"
-
-
-class Count(models.Model):
-    user = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
-    count = models.IntegerField(default=0)
-
-    def __str__(self):
-        return f"{self.user.user.username}'s Count"
+        return self.username
 
 
 class Survey(models.Model):
     title = models.CharField(max_length=255)
     score = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SurveyMark(models.Model):
+    username = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
+    marks = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.username.username} - {self.survey.title}"
+
+
+class SurveyCount(models.Model):
+    survey = models.OneToOneField(Survey, on_delete=models.CASCADE)
+    user_count = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.survey.title} - User Count: {self.user_count}"
 
 
 class Question(models.Model):
@@ -40,6 +44,7 @@ class Option(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
     option = models.CharField(max_length=255)
     is_correct = models.BooleanField(default=False)
+
 
 
 

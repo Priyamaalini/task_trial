@@ -1,17 +1,18 @@
 from django.urls import include, path
 from rest_framework import routers
-from .views import UserProfileViewSet, SurveyViewSet, QuestionViewSet, OptionViewSet
+from .views import UserProfileViewSet, SurveyViewSet, QuestionViewSet, OptionViewSet, SurveyMarkViewSet, SurveyCountViewSet
 
 router = routers.DefaultRouter()
 router.register('userprofiles', UserProfileViewSet)
 router.register('surveys', SurveyViewSet)
 router.register('questions', QuestionViewSet)
 router.register('options', OptionViewSet)
+router.register('surveymarks', SurveyMarkViewSet)
+router.register('surveycounts', SurveyCountViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
 ]
-
 
 
 

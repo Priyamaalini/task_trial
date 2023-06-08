@@ -21,6 +21,7 @@ const App = () => {
       <Route path="/display" element={<DisplaySurvey />} />
       <Route path="/admin-dashboard" element={<AdminDashboard/>} />
       <Route path='/result' element={<Result/>} />
+  
     </Routes>
   </Router>
   );

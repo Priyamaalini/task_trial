@@ -1,18 +1,15 @@
 from rest_framework import serializers
-from .models import UserProfile, Survey, Question, Option
-
+from .models import UserProfile, Survey, Question, Option, SurveyMark, SurveyCount
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = '__all__'
 
-
 class OptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Option
         fields = '__all__'
-
 
 class QuestionSerializer(serializers.ModelSerializer):
     options = OptionSerializer(many=True, read_only=True)
@@ -21,6 +18,20 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Question
         fields = '__all__'
 
+class SurveyMarkSerializer(serializers.ModelSerializer):
+    user = UserProfileSerializer()
+    survey = serializers.StringRelatedField()
+
+    class Meta:
+        model = SurveyMark
+        fields = '__all__'
+
+class SurveyCountSerializer(serializers.ModelSerializer):
+    survey = serializers.StringRelatedField()
+
+    class Meta:
+        model = SurveyCount
+        fields = '__all__'
 
 class SurveySerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True, read_only=True)
@@ -28,6 +39,7 @@ class SurveySerializer(serializers.ModelSerializer):
     class Meta:
         model = Survey
         fields = '__all__'
+
 
 
 

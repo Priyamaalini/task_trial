@@ -1,271 +1,139 @@
-import React from 'react';
-import  { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
-const DisplaySurvey = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+const Card = () => {
+  const [surveys, setSurveys] = useState([]);
+  const [selectedSurvey, setSelectedSurvey] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [options, setOptions] = useState([]);
+  const [answers, setAnswers] = useState({});
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [quizCompleted, setQuizCompleted] = useState(false);
 
-  const [marks, setMarks] = useState(0); //newly added
-  const { questions, title, score } = location.state || {};
+  useEffect(() => {
+    // Fetch data from the APIs
+    axios.get('http://127.0.0.1:8000/api/surveys/')
+      .then(response => {
+        setSurveys(response.data);
 
-  // const handleOptionChange = (questionIndex, optionIndex) => {
-  //   // Handle the option selection here
-  // };
-  const handleOptionChange = (questionIndex, optionIndex) => {
-        const selectedOption = questions[questionIndex].options[optionIndex];
-        const correctOption = questions[questionIndex].correctOption;
-        if (selectedOption === correctOption) {
-          setMarks(prevMarks => prevMarks + 1);
-        }
-      };// newly added
+      })
+      .catch(error => {
+        console.error('Error fetching surveys:', error);
+      });
+
+    axios.get('http://127.0.0.1:8000/api/questions/')
+      .then(response => {
+        setQuestions(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching questions:', error);
+      });
+
+    axios.get('http://127.0.0.1:8000/api/options/')
+      .then(response => {
+        setOptions(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching options:', error);
+      });
+  }, []);
+
+  const handleSurveyClick = surveyId => {
+    const selected = surveys.find(survey => survey.id === surveyId);
+    setSelectedSurvey(selected);
+    setAnswers({});
+    setCurrentQuestionIndex(0);
+    setQuizCompleted(false);
+  };
+  const handleOptionChange = (questionId, optionId) => {
+    setAnswers(prevAnswers => ({
+      ...prevAnswers,
+      [questionId]: optionId,
+    }));
+  };
+console.log(answers)
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex + 1 < questions.length) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      setQuizCompleted(true);
+    }
+  };
 
   const handleSubmit = () => {
-    navigate('/result', {marks} )    
-  };  
   
+    
+    console.log('Submitted Answers:', answers);
+    setQuizCompleted(true);
+ 
+
+
+  };
+
   return (
-    <div className="container mt-5">
-      <h1 className="mb-3 text-primary text-center">{title}</h1>
-      <h4 className="mb-4 d-flex justify-content-end">Total Marks: {score}</h4>
+    <div className="container">
+      <h1>Surveys</h1>
+      {surveys.map(survey => (
+        <div className="card" key={survey.id}>
+          <div className="card-body">
+            <h2 className="card-title" onClick={() => handleSurveyClick(survey.id)}>
+              {survey.title}
+            </h2>
+            <p className="card-text">Score: {survey.score}</p>
+            <p className="card-text">Created At: {survey.created_at}</p>
 
-      {questions && questions.length > 0 ? (
-        <div>
-          {questions.map((question, questionIndex) => (
-            <div key={questionIndex} className="mb-4">
-              <h3>Question {questionIndex + 1}:</h3>
-              <p>{question.question}</p>
+            {selectedSurvey && selectedSurvey.id === survey.id && !quizCompleted && (
+              <div>
+                <h3>Question {currentQuestionIndex + 1}</h3>
+                {questions
+                  .filter(question => question.survey === survey.id)
+                  .map((question, index) => (
+                    index === currentQuestionIndex && (
+                      <div key={question.id}>
+                        <p>{question.question}</p>
 
-              {question.options.map((option, optionIndex) => (
-                <div key={optionIndex} className="form-check">
-                  <input
-                    type="radio"
-                    id={`option-${questionIndex}-${optionIndex}`}
-                    className="form-check-input"
-                    name={`question-${questionIndex}`}
-                    value={option}
-                    onChange={() => handleOptionChange(questionIndex, optionIndex)}
-                  />
-                  <label
-                    htmlFor={`option-${questionIndex}-${optionIndex}`}
-                    className="form-check-label"
-                  >
-                    {option}
-                  </label>
-                </div>
-              ))}
-            </div>
-          ))}
-          <button
-            type="button"
-            className="btn btn-success"
-            onClick={handleSubmit}
-          >
-            Submit Survey
-          </button>
+                        <h4>Options</h4>
+                        {options
+                          .filter(option => option.question === question.id)
+                          .map(option => (
+                            <div key={option.id} className="form-check">
+                              <input
+                                className="form-check-input"
+                                type="radio"
+                                id={option.id}
+                                name={`question_${question.id}`}
+                                value={option.id}
+                                onChange={() => handleOptionChange(question.id, option.id)}
+                                checked={answers[question.id] === option.id}
+                              />
+                              <label className="form-check-label" htmlFor={option.id}>
+                                {option.option}
+                              </label>
+                            </div>
+                          ))}
+                      </div>
+                    )
+                  ))}
+                <button className="btn btn-primary" onClick={handleNextQuestion}>
+                  Next Question
+                </button>
+              </div>
+            )}
+            {selectedSurvey && selectedSurvey.id === survey.id && quizCompleted && (
+              <div>
+                <h3>Quiz Completed!</h3>
+                <button className="btn btn-primary" onClick={handleSubmit}>
+                  Submit
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      ) : (
-        <p>No questions found.</p>
-      )}
+      ))}
     </div>
   );
 };
-export default DisplaySurvey;
 
-// import React, { useState, useEffect } from 'react';
-// import axios from 'axios';
-// import { useNavigate } from 'react-router-dom';
-
-// const DisplaySurvey = () => {
-//   const navigate = useNavigate();
-//   const [questions, setQuestions] = useState([]);
-//   const [marks, setMarks] = useState(0);
-
-//   useEffect(() => {
-//     // Fetch the survey data from the backend API
-//     axios
-//       .get('/api/surveys')
-//       .then(response => {
-//         const { data } = response;
-//         setQuestions(data.questions);
-//       })
-//       .catch(error => {
-//         console.error('Error fetching survey data:', error);
-//       });
-//   }, []);
-
-//   const handleOptionChange = (questionIndex, optionIndex) => {
-//     const selectedOption = questions[questionIndex].options[optionIndex];
-//     const correctOption = questions[questionIndex].correctOption;
-//     if (selectedOption === correctOption) {
-//       setMarks(prevMarks => prevMarks + 1);
-//     }
-//   };
-
-//   const handleSubmit = () => {
-//     // You can perform any necessary actions here before redirecting
-//     // For example, you can save the marks to a database
-  
-//     // Post the total marks to the server
-//     axios
-//       .post('/api/marks', { marks })
-//       .then(response => {
-//         console.log('Marks posted successfully:', response.data);
-//         // Redirect to the result page with the total marks
-//         navigate('/result', { marks });
-//       })
-//       .catch(error => {
-//         console.error('Error posting marks:', error);
-//       });
-//   };
-
-//   return (
-//     <div className="container mt-5">
-//       <h2>Survey Questions</h2>
-
-//       <form>
-//         {questions && questions.length > 0 ? (
-//           <div>
-//             {questions.map((question, questionIndex) => (
-//               <div key={questionIndex} className="mb-3">
-//                 <h3>Question {questionIndex + 1}:</h3>
-//                 <p>{question.question}</p>
-
-//                 {question.options.map((option, optionIndex) => (
-//                   <div key={optionIndex} className="form-check">
-//                     <input
-//                       type="radio"
-//                       className="form-check-input"
-//                       id={`option-${questionIndex}-${optionIndex}`}
-//                       name={`question-${questionIndex}`}
-//                       value={option}
-//                       onChange={() => handleOptionChange(questionIndex, optionIndex)}
-//                     />
-//                     <label
-//                       className="form-check-label"
-//                       htmlFor={`option-${questionIndex}-${optionIndex}`}
-//                     >
-//                       {option}
-//                     </label>
-//                   </div>
-//                 ))}
-//               </div>
-//             ))}
-//           </div>
-//         ) : (
-//           <p>No questions found.</p>
-//         )}
-
-//         <button type="button" className="btn btn-primary mt-3" onClick={handleSubmit}>
-//           Submit Survey
-//         </button>
-//       </form>
-//     </div>
-//   );
-// };
-
-// export default DisplaySurvey;
+export default Card;
 
 
-// import React, { useState, useEffect } from 'react';
-// import axios from 'axios';
-// import { useNavigate } from 'react-router-dom';
-
-// const DisplaySurvey = () => {
-//   // const navigate = useNavigate();
-//   const [questions, setQuestions] = useState([]);
-//   const [marks, setMarks] = useState(0);
-//   const [isSubmitted, setIsSubmitted] = useState(false);
-
-//   useEffect(() => {
-//     // Fetch the survey data from the backend API
-//     axios
-//       .get('http://127.0.0.1:8000/api/surveys/')
-//       .then(response => {
-//         const { data } = response;
-//         setQuestions(data.questions);
-//       })
-//       .catch(error => {
-//         console.error('Error fetching survey data:', error);
-//       });
-//   }, []);
-
-//   const handleOptionChange = (questionIndex, optionIndex) => {
-//     const selectedOption = questions[questionIndex].options[optionIndex];
-//     const correctOption = questions[questionIndex].correctOption;
-//     if (selectedOption === correctOption) {
-//       setMarks(prevMarks => prevMarks + 1);
-//     }
-//   };
-
-//   const handleSubmit = () => {
-//     // You can perform any necessary actions here before redirecting
-//     // For example, you can save the marks to a database
-
-//     // Post the total marks to the server
-//     axios
-//       .post('http://127.0.0.1:8000/api/surveys/', { marks })
-//       .then(response => {
-//         console.log('Marks posted successfully:', response.data);
-//         setIsSubmitted(true); // Set the submission flag to true
-//       })
-//       .catch(error => {
-//         console.error('Error posting marks:', error);
-//       });
-//   };
-
-//   return (
-//     <div className="container mt-5">
-//       <h2>Survey Questions</h2>
-
-//       <form>
-//         {questions && questions.length > 0 ? (
-//           <div>
-//             {questions.map((question, questionIndex) => (
-//               <div key={questionIndex} className="mb-3">
-//                 <h3>Question {questionIndex + 1}:</h3>
-//                 <p>{question.question}</p>
-
-//                 {question.options.map((option, optionIndex) => (
-//                   <div key={optionIndex} className="form-check">
-//                     <input
-//                       type="radio"
-//                       className="form-check-input"
-//                       id={`option-${questionIndex}-${optionIndex}`}
-//                       name={`question-${questionIndex}`}
-//                       value={option}
-//                       onChange={() => handleOptionChange(questionIndex, optionIndex)}
-//                     />
-//                     <label
-//                       className="form-check-label"
-//                       htmlFor={`option-${questionIndex}-${optionIndex}`}
-//                     >
-//                       {option}
-//                     </label>
-//                   </div>
-//                 ))}
-//               </div>
-//             ))}
-//           </div>
-//         ) : (
-//           <p>No questions found.</p>
-//         )}
-
-//         {!isSubmitted && (
-//           <button type="button" className="btn btn-primary mt-3" onClick={handleSubmit}>
-//             Submit Survey
-//           </button>
-//         )}
-
-//         {isSubmitted && (
-//           <div className="mt-3">
-//             <h4>Total Marks Scored: {marks}</h4>
-//             <h3>Congratulations!!!</h3>
-//           </div>
-//         )}
-//       </form>
-//     </div>
-//   );
-// };
-
-// export default DisplaySurvey;

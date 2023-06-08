@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from .models import UserProfile, Survey, Question, Option
-from .serializers import UserProfileSerializer, SurveySerializer, QuestionSerializer, OptionSerializer
+from .models import UserProfile, Survey, Question, Option, SurveyMark, SurveyCount
+from .serializers import UserProfileSerializer, SurveySerializer, QuestionSerializer, OptionSerializer, SurveyMarkSerializer, SurveyCountSerializer
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):
@@ -23,52 +23,11 @@ class SurveyViewSet(viewsets.ModelViewSet):
     serializer_class = SurveySerializer
 
 
+class SurveyMarkViewSet(viewsets.ModelViewSet):
+    queryset = SurveyMark.objects.all()
+    serializer_class = SurveyMarkSerializer
 
 
-
-
-
-
-
-
-
-# from rest_framework import viewsets
-# from .models import  UserProfile,SurveyData, Marks, Count
-# from .serializers import  UserProfileSerializer, SurveyDataSerializer, MarksSerializer, CountSerializer
-
-# class  UserProfileViewSet(viewsets.ModelViewSet):
-#     queryset =  UserProfile.objects.all()
-#     serializer_class =  UserProfileSerializer
-
-# class SurveyDataViewSet(viewsets.ModelViewSet):
-#     queryset = SurveyData.objects.all()
-#     serializer_class = SurveyDataSerializer
-
-# class MarksViewSet(viewsets.ModelViewSet):
-#     queryset = Marks.objects.all()
-#     serializer_class = MarksSerializer    
-
-# class CountViewSet(viewsets.ModelViewSet):
-#     queryset = Count.objects.all()
-#     serializer_class = CountSerializer
-
-
-# # from rest_framework import viewsets
-# # from .models import UserProfile, SurveyData, Marks, Count
-# # from .serializers import UserProfileSerializer, SurveyDataSerializer, MarksSerializer, CountSerializer
-
-# # class UserProfileViewSet(viewsets.ModelViewSet):
-# #     queryset = UserProfile.objects.all()
-# #     serializer_class = UserProfileSerializer
-
-# # class SurveyDataViewSet(viewsets.ModelViewSet):
-# #     queryset = SurveyData.objects.all()
-# #     serializer_class = SurveyDataSerializer
-
-# # class MarksViewSet(viewsets.ModelViewSet):
-# #     queryset = Marks.objects.all()
-# #     serializer_class = MarksSerializer    
-
-# # class CountViewSet(viewsets.ModelViewSet):
-# #     queryset = Count.objects.all()
-# #     serializer_class = CountSerializer
+class SurveyCountViewSet(viewsets.ModelViewSet):
+    queryset = SurveyCount.objects.all()
+    serializer_class = SurveyCountSerializer
