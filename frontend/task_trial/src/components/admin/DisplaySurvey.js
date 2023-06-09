@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+// import { useNavigate } from 'react-router-dom';
+
 
 const Card = () => {
   const [surveys, setSurveys] = useState([]);
@@ -9,13 +11,14 @@ const Card = () => {
   const [answers, setAnswers] = useState({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
+  const [correctAnswersCount, setCorrectAnswersCount] = useState(0);
+  // const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch data from the APIs
     axios.get('http://127.0.0.1:8000/api/surveys/')
       .then(response => {
         setSurveys(response.data);
-
       })
       .catch(error => {
         console.error('Error fetching surveys:', error);
@@ -37,46 +40,68 @@ const Card = () => {
         console.error('Error fetching options:', error);
       });
   }, []);
-
   const handleSurveyClick = surveyId => {
     const selected = surveys.find(survey => survey.id === surveyId);
     setSelectedSurvey(selected);
     setAnswers({});
     setCurrentQuestionIndex(0);
     setQuizCompleted(false);
+    setCorrectAnswersCount(0);
   };
-  const handleOptionChange = (questionId, optionId) => {
+
+  const handleOptionChange = (questionId, optionId, isCorrect) => {
     setAnswers(prevAnswers => ({
       ...prevAnswers,
       [questionId]: optionId,
     }));
+
+    if (isCorrect) {
+      setCorrectAnswersCount(prevCount => prevCount + 1);
+    }
   };
-console.log(answers)
+
   const handleNextQuestion = () => {
     if (currentQuestionIndex + 1 < questions.length) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       setQuizCompleted(true);
     }
+    
   };
 
   const handleSubmit = () => {
-  
-    
-    console.log('Submitted Answers:', answers);
-    setQuizCompleted(true);
- 
+   
+    // navigate('/survey')
+  };
 
-
+  const renderOptions = (question) => {
+    return options
+      .filter(option => option.question === question.id)
+      .map(option => (
+        <div key={option.id} className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            id={option.id}
+            name={`question_${question.id}`}
+            value={option.id}
+            onChange={() => handleOptionChange(question.id, option.id, option.is_correct)}
+            checked={answers[question.id] === option.id}
+          />
+          <label className="form-check-label" htmlFor={option.id}>
+            {option.option}
+          </label>
+        </div>
+      ));
   };
 
   return (
     <div className="container">
-      <h1>Surveys</h1>
+      <h1 className='text-center text-primary'>SURVEYS LIST</h1>
       {surveys.map(survey => (
         <div className="card" key={survey.id}>
           <div className="card-body">
-            <h2 className="card-title" onClick={() => handleSurveyClick(survey.id)}>
+            <h2 className="card-title  text-primary" onClick={() => handleSurveyClick(survey.id)}>
               {survey.title}
             </h2>
             <p className="card-text">Score: {survey.score}</p>
@@ -93,35 +118,20 @@ console.log(answers)
                         <p>{question.question}</p>
 
                         <h4>Options</h4>
-                        {options
-                          .filter(option => option.question === question.id)
-                          .map(option => (
-                            <div key={option.id} className="form-check">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                id={option.id}
-                                name={`question_${question.id}`}
-                                value={option.id}
-                                onChange={() => handleOptionChange(question.id, option.id)}
-                                checked={answers[question.id] === option.id}
-                              />
-                              <label className="form-check-label" htmlFor={option.id}>
-                                {option.option}
-                              </label>
-                            </div>
-                          ))}
+                        {renderOptions(question)}
                       </div>
                     )
                   ))}
-                <button className="btn btn-primary" onClick={handleNextQuestion}>
-                  Next Question
-                </button>
+                 <div className="d-flex justify-content-end">
+                   <button className="btn btn-primary" onClick={handleNextQuestion}>Next Question</button>
+                 </div>
               </div>
             )}
             {selectedSurvey && selectedSurvey.id === survey.id && quizCompleted && (
               <div>
-                <h3>Quiz Completed!</h3>
+                <h3 className='text-success'>Quiz Completed!</h3>
+                <p>Total Correct Answers: {correctAnswersCount}</p>
+                <p>Total Mark: {(selectedSurvey.score / (questions.filter(question => question.survey === selectedSurvey.id).length)) * correctAnswersCount}</p>
                 <button className="btn btn-primary" onClick={handleSubmit}>
                   Submit
                 </button>
@@ -135,5 +145,4 @@ console.log(answers)
 };
 
 export default Card;
-
 

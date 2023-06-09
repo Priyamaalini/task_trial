@@ -8,7 +8,7 @@ import CreateSurvey from './components/admin/AdminSurvey';
 import DisplaySurvey from './components/admin/DisplaySurvey';
 import Result from './components/user/Result';
 
-import './App.css' ; // Import the CSS file
+
 
 const App = () => {
   return (

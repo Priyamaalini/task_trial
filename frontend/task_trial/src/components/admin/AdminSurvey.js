@@ -23,7 +23,7 @@ const CreateSurvey = () => {
 
   const handleCorrectOptionChange = (e, questionIndex) => {
     const updatedQuestions = [...questions];
-    
+
     updatedQuestions[questionIndex].correctOption = e.target.value;
     setQuestions(updatedQuestions);
   };
@@ -105,60 +105,63 @@ const CreateSurvey = () => {
   };
 
   return (
-    <div>
-      <h2>Create Survey</h2>
+    <div className="container">
+      
+      <h2 className='text-center text-primary'>CREATE SURVEY</h2>
 
-      <div>
+      <div className="form-group">
         <label>Title:</label>
-        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <input type="text" className="form-control" value={title} onChange={(e) => setTitle(e.target.value)} />
       </div>
 
-      <div>
+      <div className="form-group">
         <label>Score:</label>
-        <input type="number" value={score} onChange={(e) => setScore(e.target.value)} />
+        <input type="number" className="form-control" value={score} onChange={(e) => setScore(e.target.value)} />
       </div>
 
-      <div>
+      <div className="form-group">
         <label>Question:</label>
-        <input type="text" value={currentQuestion} onChange={handleQuestionChange} />
-        <button type="button" onClick={handleAddQuestion}>Add Question</button>
+        <input type="text" className="form-control" value={currentQuestion} onChange={handleQuestionChange} /><br/>
+        <button type="button" className="btn btn-primary" onClick={handleAddQuestion}>Add Question</button>
       </div>
 
-      <div>
+      <div className="form-group">
         <label>Options:</label>
-        <input type="text" value={currentOption} onChange={handleOptionChange} />
-        <button type="button" onClick={handleAddOption}>Add Option</button>
+        <input type="text" className="form-control" value={currentOption} onChange={handleOptionChange} /><br/>
+        <button type="button" className="btn btn-primary" onClick={handleAddOption}>Add Option</button>
       </div>
 
       <div>
         {questions.map((question, index) => (
-          <div key={index}>
-            <h3>Question {index + 1}:</h3>
-            <p>{question.question}</p>
-            <button type="button" onClick={() => handleDeleteQuestion(index)}>Delete Question</button>
-            {question.options.map((option, optionIndex) => (
-              <div key={optionIndex}>
-                <input type="radio" name={`question-${index}`} value={option} />
-                <label>{option}</label>
-                <button type="button" onClick={() => handleDeleteOption(index, optionIndex)}>Delete Option</button>
+          <div key={index} className="card my-3">
+            <div className="card-body">
+              <h3 className="card-title">Question {index + 1}:</h3>
+              <p className="card-text">{question.question}</p>
+              <button type="button" className="btn btn-danger rounded-pill" onClick={() => handleDeleteQuestion(index)}>Delete Question</button>
+              {question.options.map((option, optionIndex) => (
+                <div key={optionIndex} className="form-check">
+                  <input type="radio" className="form-check-input" name={`question-${index}`} value={option} />
+                  <label className="form-check-label mt-2">{option}</label>
+                  <button type="button" className=" btn btn-danger rounded-pill" onClick={() => handleDeleteOption(index, optionIndex)}>Delete Option</button>
+                </div>
+              ))}
+              <div className="form-group">
+                <label>Select Correct Option:</label>
+                <select className="form-control" value={question.correctOption} onChange={(e) => handleCorrectOptionChange(e, index)}>
+                  <option value="">Choose Option</option>
+                  {question.options.map((option, optionIndex) => (
+                    <option key={optionIndex} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
               </div>
-            ))}
-            <div>
-              <label>Select Correct Option:</label>
-              <select value={question.correctOption} onChange={(e) => handleCorrectOptionChange(e, index)}>
-                <option value="">Choose Option</option>
-                {question.options.map((option, optionIndex) => (
-                  <option key={optionIndex} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
         ))}
-      </div>
+      </div><br/><br/>
 
-      <button type="button" onClick={handleSubmit}>Create Survey</button>
+      <button type="button" className="btn btn-success" onClick={handleSubmit}>Create Survey</button>
     </div>
   );
 };
